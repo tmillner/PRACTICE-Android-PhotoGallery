@@ -11,6 +11,7 @@ public class QueryPreferences {
 
     private static final String PREF_SEARCH_QUERY = "searchQuery";
     private static final String PREF_LAST_RESULT_ID = "lastResultId";
+    private static final String PREF_IS_ALARM_ON = "isAlarmOn";
 
     public static String getStoredQuery(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
@@ -35,4 +36,18 @@ public class QueryPreferences {
                 .putString(PREF_LAST_RESULT_ID, lastResultId)
                 .apply();
     }
+
+    public static boolean getPrefIsAlarmOn(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PREF_IS_ALARM_ON, false);
+    }
+
+    public static void setPrefIsAlarmOn(Context context, boolean isAlarmOn) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(PREF_IS_ALARM_ON, isAlarmOn)
+                .apply();
+    }
+
+
 }

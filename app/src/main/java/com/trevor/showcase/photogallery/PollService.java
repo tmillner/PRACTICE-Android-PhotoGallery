@@ -1,5 +1,6 @@
 package com.trevor.showcase.photogallery;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
@@ -23,9 +24,16 @@ import java.util.List;
 public class PollService extends IntentService {
 
     private static final String TAG = PollService.class.getName();
+    public static final String ACTION_SHOW_NOTIFICATION =
+            "com.trevor.showcase.photogallery.SHOW_NOTIFICATION";
 
-    // private static final int POLL_INTERVAL = 60 * 1000; // 60s
-    private static final long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+    public static final String REQUEST_CODE = "REQUEST_CODE";
+    public static final String NOTIFICATION = "NOTIFICATION";
+
+    public static final String PERM_PRIVATE = "com.trevor.showcase.photogallery.PRIVATE";
+
+    private static final int POLL_INTERVAL = 30 * 1000; // 30s
+    // private static final long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 
     public static Intent newIntent(Context context) {
         return new Intent(context, PollService.class);
@@ -37,6 +45,9 @@ public class PollService extends IntentService {
 
     public static void setServiceAlarm(Context context, boolean isOn) {
         Intent i = newIntent(context);
+        // This pending intent will trigger the message.send() thus invoking
+        // onHandleIntent eventually (all done behind the scenes)
+        // alarm manager knows how to do this
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, i, 0);
 
         AlarmManager alarmManager = (AlarmManager) context
@@ -49,6 +60,8 @@ public class PollService extends IntentService {
             alarmManager.cancel(pendingIntent);
             pendingIntent.cancel();
         }
+
+        QueryPreferences.setPrefIsAlarmOn(context, isOn);
     }
 
     public static boolean isServiceAlarmOn(Context context) {
@@ -92,12 +105,32 @@ public class PollService extends IntentService {
                     .setContentIntent(pi)
                     .setAutoCancel(true)
                     .build();
+
+            /* This could exist without broadcast recievers as such:
+            But since we use brodcast recievers to with orderedBroadcast, need to
+            run in static Broadcast Receiver (else this it service would die before full execution)
+
             NotificationManagerCompat notificationManager =
                     NotificationManagerCompat.from(this);
             notificationManager.notify(0, notification);
+            */
+            showBackgroundNotification(0, notification);
+
+            // See VisibleFragment for FG broadcast receiver
+            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PERM_PRIVATE);
         }
         QueryPreferences.setPrefLastResultId(this, firstGalleryItemId);
 
+    }
+
+    private void showBackgroundNotification(int requestCode, Notification notification) {
+        Intent i = new Intent(ACTION_SHOW_NOTIFICATION);
+        i.putExtra(REQUEST_CODE, requestCode);
+        i.putExtra(NOTIFICATION, notification);
+        // result receiver typically is used but since this could die early
+        // outsourced to static Broadcast receiver
+        sendOrderedBroadcast(i, PERM_PRIVATE, null, null,
+                Activity.RESULT_OK, null, null);
     }
 
     private boolean isNetworkAvailableAndConnected() {

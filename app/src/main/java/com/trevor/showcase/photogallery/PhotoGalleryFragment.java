@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PhotoGalleryFragment extends Fragment {
+public class PhotoGalleryFragment extends VisibleFragment {
 
     private RecyclerView mRecyclerView;
     private List<GalleryItem> mGalleryItems = new ArrayList<>();
