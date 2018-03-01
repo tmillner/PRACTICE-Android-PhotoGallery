@@ -89,7 +89,7 @@ public class PollService extends IntentService {
         if(galleryItemList.size() == 0) return;
 
         String firstGalleryItemId = galleryItemList.get(0).getId();
-        if(firstGalleryItemId == lastResultId) {
+        if(firstGalleryItemId.equals(lastResultId)) {
             Log.d(TAG, "Current most recent gallery item matches old: " + lastResultId);
         } else {
             Log.d(TAG, "Current most recent gallery item DOES NOT matches old " + firstGalleryItemId);

@@ -117,7 +117,7 @@ public class FlickrFetcher {
             JSONObject photo = photosArray.getJSONObject(i);
 
             GalleryItem item = new GalleryItem();
-            item.setCaption(photo.getString("id"));
+            item.setId(photo.getString("id"));
             item.setCaption(photo.getString("title"));
 
             if(!photo.has("url_s")) {
